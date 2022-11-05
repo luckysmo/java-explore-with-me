@@ -7,13 +7,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.EventStatDto;
 import ru.practicum.dto.EventStatDtoView;
-import ru.practicum.dto.EventStatMapper;
 import ru.practicum.repository.EventStatRepository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.dto.EventStatMapper.eventStatFromDto;
 
 @Service
 @Slf4j
@@ -24,7 +25,7 @@ public class EventStatServiceImpl implements EventStatService {
 
     @Override
     public void save(EventStatDto eventStatDto) {
-        repository.save(EventStatMapper.eventStatFromDto(eventStatDto));
+        repository.save(eventStatFromDto(eventStatDto));
     }
 
     @Override
@@ -32,7 +33,7 @@ public class EventStatServiceImpl implements EventStatService {
 
         String sqlQuery = "SELECT app, uri, count(hits) as hits " +
                 "FROM (Select Distinct app, uri, 1 as hits FROM endpoint_hit eh " +
-                "where eh.uri IN (:uris) and date_hit Between :start and :end) as p " +
+                ") as p " +
                 "group by p.app, p.uri";
 
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
