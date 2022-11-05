@@ -14,7 +14,7 @@ services:
     ports:
       - "6542:5432"
     depends_on:
-      - server-db
+      - ewm-db
     environment:
       - POSTGRES_DB=stat_db
       - POSTGRES_USER=user
@@ -36,7 +36,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - statistics
+      - stats-server
     environment:
       - STATS_SERVER_URL=http://statistics:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://server-db:5432/explore_with_me_server
