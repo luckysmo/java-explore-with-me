@@ -27,7 +27,7 @@ services:
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/explore_with_me_stat
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stat_db
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
 
@@ -38,8 +38,8 @@ services:
     depends_on:
       - stats-server
     environment:
-      - STATS_SERVER_URL=http://statistics:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://server-db:5432/explore_with_me_server
+      - STATS_SERVER_URL=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/server_db
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
 
