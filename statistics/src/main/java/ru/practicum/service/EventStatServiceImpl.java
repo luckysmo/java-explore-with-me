@@ -33,7 +33,7 @@ public class EventStatServiceImpl implements EventStatService {
 
         String sqlQuery = "SELECT app, uri, count(hits) as hits " +
                 "FROM (Select Distinct app, uri, 1 as hits FROM endpoint_hit eh " +
-                ") as p " +
+                "where eh.uri IN (:uris) and date_hit Between :start and :end) as p " +
                 "group by p.app, p.uri";
 
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
