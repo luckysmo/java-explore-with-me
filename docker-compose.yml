@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  server-db:
+  ewm-db:
     image: postgres:14-alpine
     ports:
       - "6541:5432"
@@ -20,7 +20,7 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
 
-  statistics:
+  stats-server:
     build: ./statistics
     ports:
       - "9090:9090"
@@ -31,7 +31,7 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
 
-  server:
+  ewm-service:
     build: ./server
     ports:
       - "8080:8080"
