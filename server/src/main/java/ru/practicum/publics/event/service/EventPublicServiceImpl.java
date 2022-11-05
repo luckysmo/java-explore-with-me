@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.exceptions.EventForbiddenException;
 import ru.practicum.priv.event.Event;
 import ru.practicum.priv.event.EventState;
+import ru.practicum.priv.event.dto.EventFullDto;
 import ru.practicum.priv.event.dto.EventMapper;
 import ru.practicum.priv.event.dto.EventShortDto;
 import ru.practicum.priv.event.dto.service.EventDtoService;
@@ -45,34 +46,31 @@ public class EventPublicServiceImpl implements EventPublicService {
                 categories,
                 paid,
                 rangeStart,
-                rangeEnd
-        );
-        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventShortDto(events)
-        );
+                rangeEnd);
+        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(EventMapper.eventToEventShortDto(events));
 
         return sortEventList(eventShortDtos, sort, from, size);
     }
 
     @Override
-    public EventShortDto getEvent(Long id) {
+    public EventFullDto getEvent(Long id) {
         log.debug("Запрос getEvent по id - {}", id);
         Event event = eventRepository.checkAndReturnEventIfExist(id);
         if (event.getState() != EventState.PUBLISHED) {
             throw new EventForbiddenException(
                     String.format("Попытка получения не опубликованного события по id %s", id));
         }
-        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventShortDto(event));
+        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventFullDto(event));
     }
 
     @Override
-    public EventShortDto saveStat(EventShortDto eventShortDto, HttpServletRequest request) {
+    public EventFullDto saveStat(EventFullDto eventShortDto, HttpServletRequest request) {
         saveEventStat(request.getRequestURI(), request.getRemoteAddr());
         return eventShortDto;
     }
 
     @Override
-    public List<EventShortDto> saveStat(List<EventShortDto> dtoCollection, HttpServletRequest request) {
+    public List<EventShortDto> saveStatList(List<EventShortDto> dtoCollection, HttpServletRequest request) {
         dtoCollection.forEach(x -> saveEventStat(request.getRequestURI() + "/" + x.getId(), request.getRemoteAddr()));
         return dtoCollection;
     }

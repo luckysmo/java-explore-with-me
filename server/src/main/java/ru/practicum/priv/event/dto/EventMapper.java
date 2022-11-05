@@ -17,7 +17,6 @@ public class EventMapper {
             event.setLatitude(location.getLat());
             event.setLongitude(location.getLon());
         }
-
         return event;
     }
 

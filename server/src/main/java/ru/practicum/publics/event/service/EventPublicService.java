@@ -1,5 +1,6 @@
 package ru.practicum.publics.event.service;
 
+import ru.practicum.priv.event.dto.EventFullDto;
 import ru.practicum.priv.event.dto.EventShortDto;
 import ru.practicum.publics.event.EventKindSort;
 
@@ -19,9 +20,9 @@ public interface EventPublicService {
             int from,
             int size);
 
-    EventShortDto getEvent(Long id);
+    EventFullDto getEvent(Long id);
 
-    EventShortDto saveStat(EventShortDto eventShortDto, HttpServletRequest request);
+    EventFullDto saveStat(EventFullDto eventShortDto, HttpServletRequest request);
 
-    List<EventShortDto> saveStat(List<EventShortDto> dtoCollection, HttpServletRequest request);
+    List<EventShortDto> saveStatList(List<EventShortDto> dtoCollection, HttpServletRequest request);
 }

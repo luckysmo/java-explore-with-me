@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.exceptions.EventBadRequestException;
+import ru.practicum.priv.event.dto.EventFullDto;
 import ru.practicum.priv.event.dto.EventShortDto;
 import ru.practicum.publics.event.service.EventPublicService;
 
@@ -37,7 +38,6 @@ public class EventPublicController {
         LocalDateTime rangeEndDate = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         if (rangeStart != null) {
             try {
                 rangeStartDate = LocalDateTime.parse(rangeStart, formatter);
@@ -45,7 +45,6 @@ public class EventPublicController {
                 throw new EventBadRequestException(String.format("Неверный формат даты rangeStart %s", rangeStart));
             }
         }
-
         if (rangeEnd != null) {
             try {
                 rangeEndDate = LocalDateTime.parse(rangeEnd, formatter);
@@ -53,8 +52,7 @@ public class EventPublicController {
                 throw new EventBadRequestException(String.format("Неверный формат даты rangeEnd %s", rangeEnd));
             }
         }
-
-        return eventPublicService.saveStat(eventPublicService.getEvents(
+        return eventPublicService.saveStatList(eventPublicService.getEvents(
                         text,
                         categories,
                         paid,
@@ -68,7 +66,7 @@ public class EventPublicController {
     }
 
     @GetMapping("/{id}")
-    public EventShortDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
         return eventPublicService.saveStat(eventPublicService.getEvent(id), request);
     }
 }
