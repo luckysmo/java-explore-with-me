@@ -31,7 +31,7 @@ public class EventStatServiceImpl implements EventStatService {
     @Override
     public List<EventStatDtoView> getEventStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
 
-        String sqlQuery = "SELECT p.app, p.uri, count(p.hits) as hits " +
+        String sqlQuery = "SELECT app, uri, count(hits) as hits " +
                 "FROM (Select Distinct app, uri, 1 as hits FROM endpoint_hit eh " +
                 "where eh.uri IN (:uris) and date_hit Between :start and :end) as p " +
                 "group by p.app, p.uri";
