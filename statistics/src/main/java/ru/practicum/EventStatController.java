@@ -13,6 +13,7 @@ import ru.practicum.service.EventStatService;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -30,8 +31,9 @@ public class EventStatController {
                                            @RequestParam String end,
                                            @RequestParam List<String> uris,
                                            @RequestParam Boolean unique) {
-        LocalDateTime startDate = LocalDateTime.parse(URLDecoder.decode(start, StandardCharsets.UTF_8));
-        LocalDateTime endDate = LocalDateTime.parse(URLDecoder.decode(end, StandardCharsets.UTF_8));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startDate = LocalDateTime.parse(URLDecoder.decode(start, StandardCharsets.UTF_8), formatter);
+        LocalDateTime endDate = LocalDateTime.parse(URLDecoder.decode(end, StandardCharsets.UTF_8), formatter);
         return eventStatService.getEventStats(startDate, endDate, uris, unique);
     }
 }
