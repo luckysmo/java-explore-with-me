@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static java.net.URLDecoder.decode;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @RestController
 @RequiredArgsConstructor
 public class EventStatController {
@@ -30,9 +33,12 @@ public class EventStatController {
                                            @RequestParam List<String> uris,
                                            @RequestParam Boolean unique) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endTime = (LocalDateTime.parse(end, formatter));
-
-        return eventStatService.getEventStats(startTime, endTime, uris, unique);
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = LocalDateTime.now();
+        if (start != null && end != null) {
+            startDate = LocalDateTime.parse(decode(start, UTF_8), formatter);
+            endDate = LocalDateTime.parse(decode(end, UTF_8), formatter);
+        }
+        return eventStatService.getEventStats(startDate, endDate, uris, unique);
     }
 }
