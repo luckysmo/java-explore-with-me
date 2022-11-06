@@ -8,7 +8,7 @@ public class EventStatMapper {
         eventStat.setApp(eventStatDto.getApp());
         eventStat.setUri(eventStatDto.getUri());
         eventStat.setIp(eventStatDto.getIp());
-        eventStat.setDateHit(eventStatDto.getDateHit());
+        eventStat.setDateHit(eventStatDto.getTimestamp());
 
         return eventStat;
     }
