@@ -10,8 +10,9 @@ import ru.practicum.dto.EventStatDto;
 import ru.practicum.dto.EventStatDtoView;
 import ru.practicum.service.EventStatService;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -29,10 +30,8 @@ public class EventStatController {
                                            @RequestParam String end,
                                            @RequestParam List<String> uris,
                                            @RequestParam Boolean unique) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endTime = (LocalDateTime.parse(end, formatter));
-
-        return eventStatService.getEventStats(startTime, endTime, uris, unique);
+        LocalDateTime startDate = LocalDateTime.parse(URLDecoder.decode(start, StandardCharsets.UTF_8));
+        LocalDateTime endDate = LocalDateTime.parse(URLDecoder.decode(end, StandardCharsets.UTF_8));
+        return eventStatService.getEventStats(startDate, endDate, uris, unique);
     }
 }
