@@ -11,12 +11,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StatClient extends BaseClient {
     public static final String APP_NAME = "explore with me";
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public StatClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -36,8 +38,8 @@ public class StatClient extends BaseClient {
             boolean unique
     ) throws UnsupportedEncodingException {
         Map<String, Object> parameters = Map.of(
-                "start", URLEncoder.encode(start.toString(), StandardCharsets.UTF_8),
-                "end", URLEncoder.encode(end.toString(), StandardCharsets.UTF_8),
+                "start", URLEncoder.encode(start.format(formatter), StandardCharsets.UTF_8),
+                "end", URLEncoder.encode(end.format(formatter), StandardCharsets.UTF_8),
                 "uris", uris,
                 "unique", unique
         );
