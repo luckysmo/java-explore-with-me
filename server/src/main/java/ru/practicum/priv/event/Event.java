@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import ru.practicum.admin.category.Category;
 import ru.practicum.admin.user.User;
 
@@ -22,7 +21,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "events")
@@ -43,7 +41,6 @@ public class Event {
     @Column(name = "description", length = 7000)
     private String description;
     @NotNull
-    @Column(name = "created_on")
     private LocalDateTime createdOn;
     @NotNull
     @Column(name = "event_date", nullable = false)
@@ -51,9 +48,7 @@ public class Event {
     @Column(name = "published_on", nullable = false)
     private LocalDateTime publishedOn;
     private boolean paid;
-    @Column(name = "request_moderation")
     private boolean requestModeration;
-    @Column(name = "participant_limit")
     private Integer participantLimit;
     private Double longitude;
     private Double latitude;
@@ -66,17 +61,4 @@ public class Event {
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "initiator")
     private User initiator;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Event event = (Event) o;
-        return id != null && Objects.equals(id, event.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }
