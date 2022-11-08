@@ -1,0 +1,72 @@
+package ru.practicum.publics.event;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.exceptions.EventBadRequestException;
+import ru.practicum.priv.event.dto.EventFullDto;
+import ru.practicum.priv.event.dto.EventShortDto;
+import ru.practicum.publics.event.service.EventPublicService;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+@RestController
+@RequestMapping(path = "/events")
+@RequiredArgsConstructor
+public class EventPublicController {
+    private final EventPublicService eventPublicService;
+
+    @GetMapping
+    public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
+                                         @RequestParam(required = false) List<Long> categories,
+                                         @RequestParam(required = false) Boolean paid,
+                                         @RequestParam(required = false) String rangeStart,
+                                         @RequestParam(required = false) String rangeEnd,
+                                         @RequestParam(defaultValue = "false", required = false) Boolean onlyAvailable,
+                                         @RequestParam(defaultValue = "EVENT_DATE", required = false) EventKindSort sort,
+                                         @RequestParam(defaultValue = "0", required = false) int from,
+                                         @RequestParam(defaultValue = "10", required = false) int size,
+                                         HttpServletRequest request) {
+        LocalDateTime rangeStartDate = null;
+        LocalDateTime rangeEndDate = null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if (rangeStart != null) {
+            try {
+                rangeStartDate = LocalDateTime.parse(rangeStart, formatter);
+            } catch (DateTimeParseException e) {
+                throw new EventBadRequestException(String.format("Неверный формат даты rangeStart %s", rangeStart));
+            }
+        }
+        if (rangeEnd != null) {
+            try {
+                rangeEndDate = LocalDateTime.parse(rangeEnd, formatter);
+            } catch (DateTimeParseException e) {
+                throw new EventBadRequestException(String.format("Неверный формат даты rangeEnd %s", rangeEnd));
+            }
+        }
+        return eventPublicService.saveStatList(eventPublicService.getEvents(
+                        text,
+                        categories,
+                        paid,
+                        rangeStartDate,
+                        rangeEndDate,
+                        onlyAvailable,
+                        sort,
+                        from,
+                        size),
+                request);
+    }
+
+    @GetMapping("/{id}")
+    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        return eventPublicService.saveStat(eventPublicService.getEvent(id), request);
+    }
+}
