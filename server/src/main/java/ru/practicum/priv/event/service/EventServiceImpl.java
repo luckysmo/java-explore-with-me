@@ -10,6 +10,7 @@ import ru.practicum.admin.user.User;
 import ru.practicum.admin.user.repository.UserRepository;
 import ru.practicum.exceptions.EventBadRequestException;
 import ru.practicum.exceptions.EventForbiddenException;
+import ru.practicum.exceptions.LikeNotFoundException;
 import ru.practicum.exceptions.RequestForbiddenException;
 import ru.practicum.priv.event.Event;
 import ru.practicum.priv.event.EventState;
@@ -19,10 +20,11 @@ import ru.practicum.priv.event.dto.NewEventDto;
 import ru.practicum.priv.event.dto.UpdateEventDto;
 import ru.practicum.priv.event.dto.service.EventDtoService;
 import ru.practicum.priv.event.repository.EventRepository;
+import ru.practicum.priv.likes.Like;
+import ru.practicum.priv.likes.LikeRepository;
 import ru.practicum.priv.request.Request;
 import ru.practicum.priv.request.RequestStatus;
 import ru.practicum.priv.request.dto.RequestDto;
-import ru.practicum.priv.request.dto.RequestMapper;
 import ru.practicum.priv.request.repository.RequestRepository;
 import ru.practicum.priv.request.service.RequestService;
 
@@ -30,6 +32,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventFullDto;
+import static ru.practicum.priv.request.dto.RequestMapper.requestToDto;
 
 @Service
 @Slf4j
@@ -42,6 +47,8 @@ public class EventServiceImpl implements EventService {
     private final RequestService requestService;
     private final EventDtoService eventDtoService;
 
+    private final LikeRepository likeRepository;
+
     @Override
     public EventFullDto saveEvent(NewEventDto eventDto, Long userId) {
         log.debug("Запрос saveEvent с title - {} и userId {}", eventDto.getTitle(), userId);
@@ -53,8 +60,11 @@ public class EventServiceImpl implements EventService {
         event.setCategory(categoryRepository.checkAndReturnCategoryIfExist(eventDto.getCategory()));
         event.setInitiator(userRepository.checkAndReturnUserIfExist(userId));
         event.setState(EventState.PENDING);
+        event.setLikeCount(0L);
+        event.setDislikeCount(0L);
 
-        EventFullDto eventFullDto = EventMapper.eventToEventFullDto(eventRepository.save(event));
+        EventFullDto eventFullDto = eventToEventFullDto(
+                eventRepository.save(event));
 
         return eventDtoService.fillAdditionalInfo(eventFullDto);
     }
@@ -80,7 +90,7 @@ public class EventServiceImpl implements EventService {
         }
 
         return eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventFullDto(
+                eventToEventFullDto(
                         eventRepository.save(event)
                 )
         );
@@ -100,7 +110,7 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.CANCELED);
 
         return eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventFullDto(
+                eventToEventFullDto(
                         eventRepository.save(event)
                 )
         );
@@ -114,7 +124,7 @@ public class EventServiceImpl implements EventService {
         Pageable pageRequest = PageRequest.of(from, size);
 
         return eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventFullDto(
+                eventToEventFullDto(
                         eventRepository.findEventsByInitiator(user, pageRequest)
                 )
         );
@@ -127,10 +137,7 @@ public class EventServiceImpl implements EventService {
         String error = "Нельзя смотреть чужие события. Владелец %s";
 
         return eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventFullDto(
-                        getVerifiedEvent(userId, eventId, error)
-                )
-        );
+                eventToEventFullDto(getVerifiedEvent(userId, eventId, error)));
     }
 
     @Override
@@ -139,11 +146,7 @@ public class EventServiceImpl implements EventService {
 
         String error = "Нельзя смотреть чужие события. Владелец %s";
 
-        return RequestMapper.requestToDto(
-                requestRepository.findRequestsByEvent(
-                        getVerifiedEvent(userId, eventId, error)
-                )
-        );
+        return requestToDto(requestRepository.findRequestsByEvent(getVerifiedEvent(userId, eventId, error)));
     }
 
     @Override
@@ -169,7 +172,7 @@ public class EventServiceImpl implements EventService {
 
         request.setStatus(RequestStatus.CONFIRMED);
 
-        return RequestMapper.requestToDto(requestRepository.save(request));
+        return requestToDto(requestRepository.save(request));
     }
 
     @Override
@@ -188,15 +191,72 @@ public class EventServiceImpl implements EventService {
 
         request.setStatus(RequestStatus.REJECTED);
 
-        return RequestMapper.requestToDto(requestRepository.save(request));
+        return requestToDto(requestRepository.save(request));
+    }
+
+    @Override
+    public EventFullDto addLikeOrDislike(Long userId, Long eventId, Boolean isLike) {
+        log.info(String.format("Запрос POST: /users/{userId}/events/{eventId}/like; " +
+                "userId = %d, eventId = %d, isLike = %s", userId, eventId, isLike));
+
+        userRepository.checkAndReturnUserIfExist(userId);
+        Event event = eventRepository.checkAndReturnEventIfExist(eventId);
+        Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
+        if (like == null) {
+            likeRepository.save(
+                    Like.builder()
+                            .userId(userId)
+                            .eventId(eventId)
+                            .isLike(isLike)
+                            .build());
+
+            if (isLike) {
+                event.setLikeCount(event.getLikeCount() + 1);
+            } else {
+                event.setDislikeCount(event.getDislikeCount() + 1);
+            }
+        } else {
+            if (isLike) {
+                like.setIsLike(true);
+                likeRepository.save(like);
+                event.setLikeCount(event.getLikeCount() + 1);
+                event.setDislikeCount(event.getDislikeCount() - 1);
+            } else {
+                like.setIsLike(false);
+                likeRepository.save(like);
+                event.setLikeCount(event.getLikeCount() - 1);
+                event.setDislikeCount(event.getDislikeCount() + 1);
+            }
+        }
+        return eventToEventFullDto(event);
+    }
+
+    @Override
+    public void deleteLikeOrDislike(Long userId, Long eventId, Boolean isLike) {
+        log.info(String.format("Запрос DELETE: /users/{userId}/events/{eventId}/like; " +
+                "userId = %d, eventId = %d, isLike = %s", userId, eventId, isLike));
+
+        userRepository.checkAndReturnUserIfExist(userId);
+        Event event = eventRepository.checkAndReturnEventIfExist(eventId);
+        Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
+        if (like == null) {
+            throw new LikeNotFoundException(String.format(
+                    "like/dislike пользователя с id = %d на событие с id = %d не обнаружен", userId, eventId));
+        }
+        likeRepository.deleteById(like.getId());
+        if (like.getIsLike()) {
+            event.setLikeCount(event.getLikeCount() - 1);
+        } else {
+            event.setDislikeCount(event.getDislikeCount() - 1);
+        }
+        eventRepository.save(event);
     }
 
     private void checkTimeOfEvent(UpdateEventDto eventDto) {
         if (eventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             String eventDate = eventDto.getEventDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             throw new EventBadRequestException(
-                    String.format("Событие начинается %s. Это очень рано. Никто не придет", eventDate)
-            );
+                    String.format("Событие начинается %s. Это очень рано. Никто не придет", eventDate));
         }
     }
 
@@ -206,10 +266,8 @@ public class EventServiceImpl implements EventService {
 
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new EventForbiddenException(
-                    String.format(error, event.getInitiator().getId())
-            );
+                    String.format(error, event.getInitiator().getId()));
         }
-
         return event;
     }
 

@@ -55,6 +55,10 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", length = 100, nullable = false)
     private EventState state;
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount;
+    @Column(name = "dislike_count", nullable = false)
+    private Long dislikeCount;
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;

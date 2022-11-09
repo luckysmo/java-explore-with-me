@@ -23,4 +23,8 @@ public interface EventService {
     RequestDto confirmEventRequest(Long userId, Long eventId, Long reqId);
 
     RequestDto rejectEventRequest(Long userId, Long eventId, Long reqId);
+
+    EventFullDto addLikeOrDislike(Long userId, Long eventId, Boolean isLike);
+
+    void deleteLikeOrDislike(Long userId, Long eventId, Boolean isLike);
 }

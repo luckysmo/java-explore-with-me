@@ -1,6 +1,7 @@
 package ru.practicum.priv.event;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import ru.practicum.priv.event.service.EventService;
 import ru.practicum.priv.request.dto.RequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -73,5 +75,19 @@ public class EventController {
                                          @PathVariable Long eventId,
                                          @PathVariable Long reqId) {
         return eventService.rejectEventRequest(userId, eventId, reqId);
+    }
+
+    @PatchMapping("/{eventId}/like")
+    public EventFullDto addLikeOrDislike(@PathVariable Long userId,
+                                         @PathVariable Long eventId,
+                                         @RequestParam Boolean isLike) {
+        return eventService.addLikeOrDislike(userId, eventId, isLike);
+    }
+
+    @DeleteMapping("/{eventId}/like")
+    public void deleteLikeOrDislike(@PathVariable @Positive Long userId,
+                                    @PathVariable @Positive Long eventId,
+                                    @RequestParam Boolean isLike) {
+        eventService.deleteLikeOrDislike(userId, eventId, isLike);
     }
 }
