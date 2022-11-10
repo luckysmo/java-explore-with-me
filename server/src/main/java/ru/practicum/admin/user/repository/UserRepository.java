@@ -21,4 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             " left join Event as e on u.id = e.initiator.id" +
             " group by u order by sum(e.likeCount) desc ")
     List<User> getUserRating(Pageable pageable);
+
+    @Query("select u" +
+            " from User u inner join Event e on e.initiator.id=u.id" +
+            " order by e.likeCount desc ")
+    List<User> getAuthorRating(Pageable pageable);
 }

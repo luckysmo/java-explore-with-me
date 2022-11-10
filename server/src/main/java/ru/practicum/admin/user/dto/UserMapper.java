@@ -18,6 +18,8 @@ public class UserMapper {
         return UserShortDto.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .likeCount(user.getLikeCount())
+                .dislikeCount(user.getDislikeCount())
                 .build();
     }
 

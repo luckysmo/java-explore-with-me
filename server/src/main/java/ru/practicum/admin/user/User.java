@@ -26,4 +26,6 @@ public class User {
     private String name;
     @Column(name = "email", length = 150, nullable = false)
     private String email;
+    private Long likeCount;
+    private Long dislikeCount;
 }

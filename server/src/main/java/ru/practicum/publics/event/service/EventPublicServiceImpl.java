@@ -81,10 +81,12 @@ public class EventPublicServiceImpl implements EventPublicService {
     @Override
     public List<EventFullDto> getRatingEvent(String sort) {
         if (sort.equals("like")) {
+            log.debug("Запрос GET: /events/rating/{}", sort);
             return EventMapper.eventToEventFullDto(eventRepository.findEventsByOrderByLikeCountDesc());
-        }else if(sort.equals("dislike")){
+        } else if (sort.equals("dislike")) {
+            log.debug("Запрос GET: /events/rating/{}", sort);
             return EventMapper.eventToEventFullDto(eventRepository.findEventsByOrderByDislikeCountDesc());
-        }else {
+        } else {
             throw new IllegalArgumentException(String.format("Неверное значение сортировки рейтинга: %s", sort));
         }
     }

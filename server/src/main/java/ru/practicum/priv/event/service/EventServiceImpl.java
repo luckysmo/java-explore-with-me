@@ -198,13 +198,17 @@ public class EventServiceImpl implements EventService {
         log.debug(String.format("Запрос POST: /users/{userId}/events/{eventId}/like; " +
                 "userId = %d, eventId = %d, isLike = %s", userId, eventId, isLike));
 
-        userRepository.checkAndReturnUserIfExist(userId);
+        User user = userRepository.checkAndReturnUserIfExist(userId);
         Event event = eventRepository.checkAndReturnEventIfExist(eventId);
         Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
 
         if (like == null) {
+            user.setLikeCount(user.getLikeCount() + 1);
+            userRepository.save(user);
             return EventMapper.eventToEventFullDto(saveLike(userId, eventId, isLike, event));
         } else {
+            user.setDislikeCount(user.getDislikeCount() + 1);
+            userRepository.save(user);
             return EventMapper.eventToEventFullDto(updateLike(like, event, isLike));
         }
     }
