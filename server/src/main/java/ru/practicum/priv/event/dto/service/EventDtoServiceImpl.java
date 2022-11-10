@@ -55,6 +55,9 @@ public class EventDtoServiceImpl implements EventDtoService {
     }
 
     private Map<Long, Integer> getConfirmedRequestsInfo(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return new HashMap<>();
+        }
         String sqlQuery = "select event as eventId, count(id) as countRequests " +
                 "from participation_request pr " +
                 "where pr.event in (:eventId) and pr.status = :status " +
@@ -83,13 +86,15 @@ public class EventDtoServiceImpl implements EventDtoService {
     private Map<Long, Integer> getEventViews(List<Long> ids) {
         String suffixUri = "/events/";
         Object object;
+        List<String> collect = ids.stream()
+                .map(x -> suffixUri + x)
+                .collect(Collectors.toList());
         try {
+
             object = statClient.getStats(
                     LocalDateTime.now().minusYears(1),
                     LocalDateTime.now(),
-                    ids.stream()
-                            .map(x -> suffixUri + x)
-                            .collect(Collectors.toList()),
+                    collect,
                     true);
         } catch (UnsupportedEncodingException e) {
             throw new EventStatDtoInternalException("Не удалось получить данные статистики");

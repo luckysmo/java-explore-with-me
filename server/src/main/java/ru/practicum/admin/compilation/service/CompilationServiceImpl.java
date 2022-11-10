@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.admin.compilation.Compilation;
 import ru.practicum.admin.compilation.dto.CompilationDto;
 import ru.practicum.admin.compilation.dto.NewCompilationDto;
-import ru.practicum.admin.compilation.repository.CompilationRepository;
+import ru.practicum.admin.event.service.repository.CompilationRepository;
 import ru.practicum.exceptions.CompilationBadRequestException;
 import ru.practicum.exceptions.EventNotFoundException;
 import ru.practicum.priv.event.Event;

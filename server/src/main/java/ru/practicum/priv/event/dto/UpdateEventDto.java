@@ -26,6 +26,8 @@ public class UpdateEventDto {
     private Long category;
     private Boolean paid;
     private Integer participantLimit;
+    private Long likeCount;
+    private Long dislikeCount;
 
     public void setFieldsToEvent(Event event) {
         if (annotation != null) event.setAnnotation(annotation);

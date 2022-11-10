@@ -1,11 +1,12 @@
 package ru.practicum.priv.event.dto;
 
-import ru.practicum.admin.category.dto.CategoryMapper;
-import ru.practicum.admin.user.dto.UserMapper;
 import ru.practicum.priv.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.practicum.admin.category.dto.CategoryMapper.toCategoryDto;
+import static ru.practicum.admin.user.dto.UserMapper.toUserShortDto;
 
 public class EventMapper {
     public static Event newEventDtoToEvent(NewEventDto eventDto) {
@@ -29,6 +30,8 @@ public class EventMapper {
         event.setEventDate(eventDto.getEventDate());
         event.setPaid(eventDto.getPaid());
         event.setParticipantLimit(eventDto.getParticipantLimit());
+        event.setLikeCount(eventDto.getLikeCount());
+        event.setDislikeCount(eventDto.getDislikeCount());
 
         return event;
     }
@@ -42,12 +45,14 @@ public class EventMapper {
         eventFullDto.setEventDate(event.getEventDate());
         eventFullDto.setCreatedOn(event.getCreatedOn());
         eventFullDto.setPublishedOn(event.getPublishedOn());
-        eventFullDto.setCategory(CategoryMapper.toCategoryDto(event.getCategory()));
+        eventFullDto.setCategory(toCategoryDto(event.getCategory()));
         eventFullDto.setPaid(event.isPaid());
         eventFullDto.setRequestModeration(event.isRequestModeration());
         eventFullDto.setParticipantLimit(event.getParticipantLimit());
-        eventFullDto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
+        eventFullDto.setInitiator(toUserShortDto(event.getInitiator()));
         eventFullDto.setState(event.getState());
+        eventFullDto.setDislikeCount(event.getDislikeCount());
+        eventFullDto.setLikeCount(event.getLikeCount());
         eventFullDto.setLocation(new Location(event.getLongitude(), event.getLatitude()));
 
         return eventFullDto;
@@ -67,9 +72,9 @@ public class EventMapper {
         eventShortDto.setAnnotation(event.getAnnotation());
         eventShortDto.setDescription(event.getDescription());
         eventShortDto.setEventDate(event.getEventDate());
-        eventShortDto.setCategory(CategoryMapper.toCategoryDto(event.getCategory()));
+        eventShortDto.setCategory(toCategoryDto(event.getCategory()));
         eventShortDto.setPaid(event.isPaid());
-        eventShortDto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
+        eventShortDto.setInitiator(toUserShortDto(event.getInitiator()));
 
         return eventShortDto;
     }

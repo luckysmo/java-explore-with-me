@@ -25,4 +25,6 @@ public interface EventPublicService {
     EventFullDto saveStat(EventFullDto eventShortDto, HttpServletRequest request);
 
     List<EventShortDto> saveStatList(List<EventShortDto> dtoCollection, HttpServletRequest request);
+
+    List<EventFullDto> getRatingEvent(String sort);
 }

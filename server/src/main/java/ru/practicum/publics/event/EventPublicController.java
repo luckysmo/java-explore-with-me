@@ -69,4 +69,11 @@ public class EventPublicController {
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
         return eventPublicService.saveStat(eventPublicService.getEvent(id), request);
     }
+
+
+    @GetMapping("rating/{sort}")
+    public List<EventFullDto> getRatingEvents(@PathVariable("sort") String sort) {
+        return eventPublicService.getRatingEvent(sort);
+    }
+
 }

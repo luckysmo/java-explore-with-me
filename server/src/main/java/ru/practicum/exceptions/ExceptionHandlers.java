@@ -17,7 +17,8 @@ public class ExceptionHandlers {
             CategoryNotFoundException.class,
             EventNotFoundException.class,
             CompilationNotFoundException.class,
-            RequestNotFoundException.class})
+            RequestNotFoundException.class,
+            LikeNotFoundException.class})
     public ResponseEntity<ApiError> handle404(RuntimeException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

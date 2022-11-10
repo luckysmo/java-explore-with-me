@@ -8,13 +8,14 @@ import ru.practicum.exceptions.EventForbiddenException;
 import ru.practicum.priv.event.Event;
 import ru.practicum.priv.event.EventState;
 import ru.practicum.priv.event.dto.EventFullDto;
-import ru.practicum.priv.event.dto.EventMapper;
 import ru.practicum.priv.event.dto.NewEventDto;
 import ru.practicum.priv.event.dto.service.EventDtoService;
 import ru.practicum.priv.event.repository.EventRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventFullDto;
 
 @Service
 @Slf4j
@@ -32,7 +33,7 @@ public class EventAdminServiceImpl implements EventAdminService {
                                         LocalDateTime rangeEnd,
                                         int from,
                                         int size) {
-        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventFullDto(
+        return eventDtoService.fillAdditionalInfo(eventToEventFullDto(
                 eventRepository.findEventsByParam(users, states, categories, rangeStart, rangeEnd, from, size)));
     }
 
@@ -47,7 +48,7 @@ public class EventAdminServiceImpl implements EventAdminService {
             event.setCategory(categoryRepository.checkAndReturnCategoryIfExist(eventDto.getCategory()));
         }
         return eventDtoService.fillAdditionalInfo(
-                EventMapper.eventToEventFullDto(eventRepository.save(event)));
+                eventToEventFullDto(eventRepository.save(event)));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EventAdminServiceImpl implements EventAdminService {
         event.setPublishedOn(datePublish);
         event.setState(EventState.PUBLISHED);
 
-        EventFullDto eventFullDto = EventMapper.eventToEventFullDto(eventRepository.save(event));
+        EventFullDto eventFullDto = eventToEventFullDto(eventRepository.save(event));
 
         return eventDtoService.fillAdditionalInfo(eventFullDto);
     }
@@ -83,6 +84,6 @@ public class EventAdminServiceImpl implements EventAdminService {
         }
         event.setState(EventState.CANCELED);
 
-        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventFullDto(eventRepository.save(event)));
+        return eventDtoService.fillAdditionalInfo(eventToEventFullDto(eventRepository.save(event)));
     }
 }

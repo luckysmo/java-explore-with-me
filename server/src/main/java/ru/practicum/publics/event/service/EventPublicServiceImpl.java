@@ -21,6 +21,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventFullDto;
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventShortDto;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +50,7 @@ public class EventPublicServiceImpl implements EventPublicService {
                 paid,
                 rangeStart,
                 rangeEnd);
-        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(EventMapper.eventToEventShortDto(events));
+        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(eventToEventShortDto(events));
 
         return sortEventList(eventShortDtos, sort, from, size);
     }
@@ -60,19 +63,32 @@ public class EventPublicServiceImpl implements EventPublicService {
             throw new EventForbiddenException(
                     String.format("Попытка получения не опубликованного события по id %s", id));
         }
-        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventFullDto(event));
+        return eventDtoService.fillAdditionalInfo(eventToEventFullDto(event));
     }
 
     @Override
-    public EventFullDto saveStat(EventFullDto eventShortDto, HttpServletRequest request) {
+    public EventFullDto saveStat(EventFullDto eventFullDto, HttpServletRequest request) {
         saveEventStat(request.getRequestURI(), request.getRemoteAddr());
-        return eventShortDto;
+        return eventFullDto;
     }
 
     @Override
     public List<EventShortDto> saveStatList(List<EventShortDto> dtoCollection, HttpServletRequest request) {
         dtoCollection.forEach(x -> saveEventStat(request.getRequestURI() + "/" + x.getId(), request.getRemoteAddr()));
         return dtoCollection;
+    }
+
+    @Override
+    public List<EventFullDto> getRatingEvent(String sort) {
+        if (sort.equals("like")) {
+            log.debug("Запрос GET: /events/rating/{}", sort);
+            return EventMapper.eventToEventFullDto(eventRepository.findEventsByOrderByLikeCountDesc());
+        } else if (sort.equals("dislike")) {
+            log.debug("Запрос GET: /events/rating/{}", sort);
+            return EventMapper.eventToEventFullDto(eventRepository.findEventsByOrderByDislikeCountDesc());
+        } else {
+            throw new IllegalArgumentException(String.format("Неверное значение сортировки рейтинга: %s", sort));
+        }
     }
 
     private void saveEventStat(String uri, String ip) {
@@ -85,11 +101,10 @@ public class EventPublicServiceImpl implements EventPublicService {
         statClient.save(eventStatDto);
     }
 
-    private List<EventShortDto> sortEventList(
-            List<EventShortDto> eventList,
-            EventKindSort sort,
-            int from,
-            int size) {
+    private List<EventShortDto> sortEventList(List<EventShortDto> eventList,
+                                              EventKindSort sort,
+                                              int from,
+                                              int size) {
         if (sort == EventKindSort.VIEWS) {
             eventList = eventList.stream()
                     .sorted(Comparator.comparing(EventShortDto::getViews).reversed())

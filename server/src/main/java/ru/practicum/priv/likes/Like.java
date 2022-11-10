@@ -1,5 +1,7 @@
-package ru.practicum.admin.user;
+package ru.practicum.priv.likes;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,19 +15,23 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User {
+@AllArgsConstructor
+@Builder
+@Table(name = "likes")
+public class Like {
+
     @Id
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "name", length = 250, nullable = false)
-    private String name;
-    @Column(name = "email", length = 150, nullable = false)
-    private String email;
-    private Long likeCount;
-    private Long dislikeCount;
+    Long id;
+    @Column(name = "user_id", length = 64, nullable = false)
+    Long userId;
+    @Column(name = "event_id", nullable = false)
+    Long eventId;
+    @Column(name = "is_like", nullable = false)
+    Boolean isLike;
 }

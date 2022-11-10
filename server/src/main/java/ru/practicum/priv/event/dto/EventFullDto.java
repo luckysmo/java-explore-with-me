@@ -18,4 +18,6 @@ public class EventFullDto extends EventShortDto {
     private Integer participantLimit;
     private Location location;
     private EventState state;
+    private Long likeCount;
+    private Long dislikeCount;
 }

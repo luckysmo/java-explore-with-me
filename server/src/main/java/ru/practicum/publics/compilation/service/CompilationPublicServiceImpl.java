@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.admin.compilation.dto.CompilationDto;
 import ru.practicum.admin.compilation.dto.CompilationMapper;
-import ru.practicum.admin.compilation.repository.CompilationRepository;
+import ru.practicum.admin.event.service.repository.CompilationRepository;
 
 import java.util.List;
 

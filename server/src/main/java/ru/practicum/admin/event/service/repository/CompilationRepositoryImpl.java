@@ -1,4 +1,4 @@
-package ru.practicum.admin.compilation.repository;
+package ru.practicum.admin.event.service.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
