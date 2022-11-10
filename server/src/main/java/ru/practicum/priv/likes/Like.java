@@ -27,7 +27,7 @@ public class Like {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long Id;
+    Long id;
     @Column(name = "user_id", length = 64, nullable = false)
     Long userId;
     @Column(name = "event_id", nullable = false)
