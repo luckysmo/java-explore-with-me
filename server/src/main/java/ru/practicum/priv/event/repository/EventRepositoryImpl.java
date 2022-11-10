@@ -38,26 +38,30 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
 
         Predicate predicate = cb.conjunction();
 
-        if (states.size() > 0) {
+        if (states != null && !states.isEmpty()) {
             Predicate p = root.get("state").in(states);
             predicate = cb.and(predicate, p);
         }
 
-        if (users.size() > 0) {
+        if (users != null && !users.isEmpty()) {
             Predicate p = root.get("initiator").in(users);
             predicate = cb.and(predicate, p);
         }
 
-        if (categories.size() > 0) {
+        if (users != null && !categories.isEmpty()) {
             Predicate p = root.get("category").in(categories);
             predicate = cb.and(predicate, p);
         }
 
-        Predicate p = cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart);
-        predicate = cb.and(predicate, p);
+        if (rangeStart != null) {
+            Predicate p = cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart);
+            predicate = cb.and(predicate, p);
+        }
 
-        p = cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd);
-        predicate = cb.and(predicate, p);
+        if (rangeEnd != null) {
+            Predicate p = cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd);
+            predicate = cb.and(predicate, p);
+        }
 
         cq.where(predicate);
         List<Event> results = session.createQuery(cq)

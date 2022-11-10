@@ -27,21 +27,25 @@ public class EventAdminController {
     private final EventAdminService eventAdminService;
 
     @GetMapping
-    public Iterable<EventFullDto> getEvents(@RequestParam List<Long> users,
-                                            @RequestParam List<EventState> states,
-                                            @RequestParam List<Long> categories,
-                                            @RequestParam String rangeStart,
-                                            @RequestParam String rangeEnd,
+    public Iterable<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                            @RequestParam(required = false) List<EventState> states,
+                                            @RequestParam(required = false) List<Long> categories,
+                                            @RequestParam(required = false) String rangeStart,
+                                            @RequestParam(required = false) String rangeEnd,
                                             @RequestParam(defaultValue = "0", required = false) int from,
                                             @RequestParam(defaultValue = "10", required = false) int size) {
-        LocalDateTime rangeStartDate;
-        LocalDateTime rangeEndDate;
+        LocalDateTime rangeStartDate = null;
+        LocalDateTime rangeEndDate = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+
         try {
-            rangeStartDate = LocalDateTime.parse(rangeStart, formatter);
-            rangeEndDate = LocalDateTime.parse(rangeEnd, formatter);
+            if (rangeStart != null) {
+                rangeStartDate = LocalDateTime.parse(rangeStart, formatter);
+            } else if (rangeEnd != null) {
+                rangeEndDate = LocalDateTime.parse(rangeEnd, formatter);
+            }
         } catch (DateTimeParseException e) {
             throw new EventBadRequestException(
                     String.format("Неверный формат дат rangeStart %s или rangeEnd %s", rangeStart, rangeEnd));
