@@ -7,7 +7,6 @@ import ru.practicum.exceptions.EventForbiddenException;
 import ru.practicum.priv.event.Event;
 import ru.practicum.priv.event.EventState;
 import ru.practicum.priv.event.dto.EventFullDto;
-import ru.practicum.priv.event.dto.EventMapper;
 import ru.practicum.priv.event.dto.EventShortDto;
 import ru.practicum.priv.event.dto.service.EventDtoService;
 import ru.practicum.priv.event.repository.EventRepository;
@@ -20,6 +19,9 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventFullDto;
+import static ru.practicum.priv.event.dto.EventMapper.eventToEventShortDto;
 
 @Service
 @Slf4j
@@ -47,7 +49,7 @@ public class EventPublicServiceImpl implements EventPublicService {
                 paid,
                 rangeStart,
                 rangeEnd);
-        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(EventMapper.eventToEventShortDto(events));
+        List<EventShortDto> eventShortDtos = eventDtoService.fillAdditionalInfo(eventToEventShortDto(events));
 
         return sortEventList(eventShortDtos, sort, from, size);
     }
@@ -60,13 +62,13 @@ public class EventPublicServiceImpl implements EventPublicService {
             throw new EventForbiddenException(
                     String.format("Попытка получения не опубликованного события по id %s", id));
         }
-        return eventDtoService.fillAdditionalInfo(EventMapper.eventToEventFullDto(event));
+        return eventDtoService.fillAdditionalInfo(eventToEventFullDto(event));
     }
 
     @Override
-    public EventFullDto saveStat(EventFullDto eventShortDto, HttpServletRequest request) {
+    public EventFullDto saveStat(EventFullDto eventFullDto, HttpServletRequest request) {
         saveEventStat(request.getRequestURI(), request.getRemoteAddr());
-        return eventShortDto;
+        return eventFullDto;
     }
 
     @Override
@@ -85,11 +87,10 @@ public class EventPublicServiceImpl implements EventPublicService {
         statClient.save(eventStatDto);
     }
 
-    private List<EventShortDto> sortEventList(
-            List<EventShortDto> eventList,
-            EventKindSort sort,
-            int from,
-            int size) {
+    private List<EventShortDto> sortEventList(List<EventShortDto> eventList,
+                                              EventKindSort sort,
+                                              int from,
+                                              int size) {
         if (sort == EventKindSort.VIEWS) {
             eventList = eventList.stream()
                     .sorted(Comparator.comparing(EventShortDto::getViews).reversed())

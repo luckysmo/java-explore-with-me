@@ -31,12 +31,10 @@ public class StatClient extends BaseClient {
         return post("/hit", eventStatDto);
     }
 
-    public Object getStats(
-            LocalDateTime start,
-            LocalDateTime end,
-            List<String> uris,
-            boolean unique
-    ) throws UnsupportedEncodingException {
+    public Object getStats(LocalDateTime start,
+                           LocalDateTime end,
+                           List<String> uris,
+                           boolean unique) throws UnsupportedEncodingException {
         Map<String, Object> parameters = Map.of(
                 "start", URLEncoder.encode(start.format(formatter), StandardCharsets.UTF_8),
                 "end", URLEncoder.encode(end.format(formatter), StandardCharsets.UTF_8),

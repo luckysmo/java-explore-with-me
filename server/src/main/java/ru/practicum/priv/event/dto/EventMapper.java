@@ -75,8 +75,6 @@ public class EventMapper {
         eventShortDto.setCategory(toCategoryDto(event.getCategory()));
         eventShortDto.setPaid(event.isPaid());
         eventShortDto.setInitiator(toUserShortDto(event.getInitiator()));
-        eventShortDto.setLikeCount(event.getLikeCount());
-        eventShortDto.setDislikeCount(event.getDislikeCount());
 
         return eventShortDto;
     }

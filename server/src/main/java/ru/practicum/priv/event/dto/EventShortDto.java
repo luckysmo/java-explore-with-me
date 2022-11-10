@@ -20,6 +20,4 @@ public class EventShortDto {
     private boolean paid;
     private UserShortDto initiator;
     private Integer views;
-    private Long likeCount;
-    private Long dislikeCount;
 }

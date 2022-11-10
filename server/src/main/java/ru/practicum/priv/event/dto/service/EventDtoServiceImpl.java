@@ -83,13 +83,15 @@ public class EventDtoServiceImpl implements EventDtoService {
     private Map<Long, Integer> getEventViews(List<Long> ids) {
         String suffixUri = "/events/";
         Object object;
+        List<String> collect = ids.stream()
+                .map(x -> suffixUri + x)
+                .collect(Collectors.toList());
         try {
+
             object = statClient.getStats(
                     LocalDateTime.now().minusYears(1),
                     LocalDateTime.now(),
-                    ids.stream()
-                            .map(x -> suffixUri + x)
-                            .collect(Collectors.toList()),
+                    collect,
                     true);
         } catch (UnsupportedEncodingException e) {
             throw new EventStatDtoInternalException("Не удалось получить данные статистики");

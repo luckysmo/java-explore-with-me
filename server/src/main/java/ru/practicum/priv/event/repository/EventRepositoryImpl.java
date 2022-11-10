@@ -7,7 +7,11 @@ import org.springframework.stereotype.Component;
 import ru.practicum.priv.event.Event;
 import ru.practicum.priv.event.EventState;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,14 +21,13 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
     private final SessionFactory sessionFactory;
 
     @Override
-    public List<Event> findEventsByParam(
-            List<Long> users,
-            List<EventState> states,
-            List<Long> categories,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd,
-            int from,
-            int size) {
+    public List<Event> findEventsByParam(List<Long> users,
+                                         List<EventState> states,
+                                         List<Long> categories,
+                                         LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd,
+                                         int from,
+                                         int size) {
         Session session = sessionFactory.openSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Event> cq = cb.createQuery(Event.class);
@@ -68,12 +71,11 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
     }
 
     @Override
-    public List<Event> findEventsByParam(
-            String text,
-            List<Long> categories,
-            Boolean paid,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd) {
+    public List<Event> findEventsByParam(String text,
+                                         List<Long> categories,
+                                         Boolean paid,
+                                         LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd) {
         Session session = sessionFactory.openSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Event> cq = cb.createQuery(Event.class);

@@ -3,7 +3,6 @@ package ru.practicum.priv.likes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +20,6 @@ import javax.persistence.Table;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "likes")
 public class Like {

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static ru.practicum.priv.event.dto.EventMapper.eventToEventFullDto;
+import static ru.practicum.priv.event.dto.EventMapper.newEventDtoToEvent;
 import static ru.practicum.priv.request.dto.RequestMapper.requestToDto;
 
 @Service
@@ -55,7 +56,7 @@ public class EventServiceImpl implements EventService {
 
         checkTimeOfEvent(eventDto);
 
-        Event event = EventMapper.newEventDtoToEvent(eventDto);
+        Event event = newEventDtoToEvent(eventDto);
         event.setCreatedOn(LocalDateTime.now());
         event.setCategory(categoryRepository.checkAndReturnCategoryIfExist(eventDto.getCategory()));
         event.setInitiator(userRepository.checkAndReturnUserIfExist(userId));
@@ -124,10 +125,7 @@ public class EventServiceImpl implements EventService {
         Pageable pageRequest = PageRequest.of(from, size);
 
         return eventDtoService.fillAdditionalInfo(
-                eventToEventFullDto(
-                        eventRepository.findEventsByInitiator(user, pageRequest)
-                )
-        );
+                eventToEventFullDto(eventRepository.findEventsByInitiator(user, pageRequest)));
     }
 
     @Override
@@ -196,44 +194,63 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto addLikeOrDislike(Long userId, Long eventId, Boolean isLike) {
-        log.info(String.format("Запрос POST: /users/{userId}/events/{eventId}/like; " +
+        log.debug(String.format("Запрос POST: /users/{userId}/events/{eventId}/like; " +
                 "userId = %d, eventId = %d, isLike = %s", userId, eventId, isLike));
 
         userRepository.checkAndReturnUserIfExist(userId);
         Event event = eventRepository.checkAndReturnEventIfExist(eventId);
-        Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
-        if (like == null) {
-            likeRepository.save(
-                    Like.builder()
-                            .userId(userId)
-                            .eventId(eventId)
-                            .isLike(isLike)
-                            .build());
+            Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
 
-            if (isLike) {
-                event.setLikeCount(event.getLikeCount() + 1);
-            } else {
-                event.setDislikeCount(event.getDislikeCount() + 1);
-            }
+        if (like == null) {
+            return EventMapper.eventToEventFullDto(saveLike(userId, eventId, isLike, event));
         } else {
-            if (isLike) {
-                like.setIsLike(true);
-                likeRepository.save(like);
+            return EventMapper.eventToEventFullDto(updateLike(like, event, isLike));
+        }
+    }
+
+    private Event updateLike(Like like, Event event, Boolean isLike) {
+        if(like.getIsLike() == isLike) {
+            return event;
+        }
+        if (isLike) {
+            like.setIsLike(true);
+            likeRepository.save(like);
+            if (event.getDislikeCount() != 0L) {
                 event.setLikeCount(event.getLikeCount() + 1);
                 event.setDislikeCount(event.getDislikeCount() - 1);
             } else {
-                like.setIsLike(false);
-                likeRepository.save(like);
+                event.setLikeCount(event.getLikeCount() + 1);
+            }
+        } else {
+            like.setIsLike(false);
+            likeRepository.save(like);
+            if (event.getLikeCount() != 0L) {
+                event.setDislikeCount(event.getDislikeCount() + 1);
                 event.setLikeCount(event.getLikeCount() - 1);
+            } else {
                 event.setDislikeCount(event.getDislikeCount() + 1);
             }
         }
-        return eventToEventFullDto(event);
+        return eventRepository.save(event);
+    }
+
+    private Event saveLike(Long userId, Long eventId, Boolean isLike, Event event) {
+        likeRepository.save(Like.builder()
+                .eventId(eventId)
+                .userId(userId)
+                .isLike(isLike)
+                .build());
+        if (isLike) {
+            event.setLikeCount(event.getLikeCount() + 1);
+        } else {
+            event.setDislikeCount(event.getDislikeCount() + 1);
+        }
+        return eventRepository.save(event);
     }
 
     @Override
     public void deleteLikeOrDislike(Long userId, Long eventId, Boolean isLike) {
-        log.info(String.format("Запрос DELETE: /users/{userId}/events/{eventId}/like; " +
+        log.debug(String.format("Запрос DELETE: /users/{userId}/events/{eventId}/like; " +
                 "userId = %d, eventId = %d, isLike = %s", userId, eventId, isLike));
 
         userRepository.checkAndReturnUserIfExist(userId);

@@ -1,4 +1,4 @@
-package ru.practicum.admin.compilation.repository;
+package ru.practicum.admin.event.service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.admin.compilation.Compilation;
