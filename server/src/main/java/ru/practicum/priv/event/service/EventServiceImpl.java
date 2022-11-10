@@ -117,6 +117,7 @@ public class EventServiceImpl implements EventService {
         );
     }
 
+
     @Override
     public List<EventFullDto> getEvents(Long userId, int from, int size) {
         log.debug("Запрос getEvents с userId - {}", userId);
@@ -199,7 +200,7 @@ public class EventServiceImpl implements EventService {
 
         userRepository.checkAndReturnUserIfExist(userId);
         Event event = eventRepository.checkAndReturnEventIfExist(eventId);
-            Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
+        Like like = likeRepository.findLikeByUserIdAndEventId(userId, eventId);
 
         if (like == null) {
             return EventMapper.eventToEventFullDto(saveLike(userId, eventId, isLike, event));
@@ -209,7 +210,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Event updateLike(Like like, Event event, Boolean isLike) {
-        if(like.getIsLike() == isLike) {
+        if (like.getIsLike() == isLike) {
             return event;
         }
         if (isLike) {
